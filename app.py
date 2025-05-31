@@ -11,49 +11,7 @@ app = Client(
     bot_token="YOUR_BOT_TOKEN"  # Tumhara BotFather se mila token
 )
 
-# Io script ka path
-LISP_SCRIPT_PATH = "app.lisp"
-
-
-def start_io_script():
-    try:
-        if not os.system("sbcl --version"):
-            process = subprocess.Popen(["sbcl", "--script", "telegram_bot.lisp"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f"Lisp script started with PID: {process.pid}")
-            return process
-        else:
-            print("SBCL is not installed or not found in PATH.")
-            return None
-    except Exception as e:
-        print(f"Error starting Lisp script: {e}")
-        return None
-
-
-
-# Function to start the Io script
-def start_io_script():
-    try:
-        # Check if Io is installed
-        if not os.system("io --version"):
-            # Run the Io script in the background
-            process = subprocess.Popen(["io", IO_SCRIPT_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f"Io script started with PID: {process.pid}")
-            return process
-        else:
-            print("Io is not installed or not found in PATH.")
-            return None
-    except Exception as e:
-        print(f"Error starting Io script: {e}")
-        return None
-
-# Pyrogram command handlers
-@app.on_message(filters.command("start"))
-async def start_command(client: Client, message: Message):
-    await message.reply_text("Hello! I'm the Pyrogram bot. Use /help for commands.")
-
-@app.on_message(filters.command("help"))
-async def help_command(client: Client, message: Message):
-    await message.reply_text("Commands:\n/start - Start the bot\n/help - Show this help\n/io_status - Check Io script status")
+ - Show this help\n/io_status - Check Io script status")
 
 @app.on_message(filters.command("io_status"))
 async def io_status(client: Client, message: Message):
@@ -136,7 +94,7 @@ def start_script():
                 return None
         print("SBCL found. Starting Lisp script...")
         process = subprocess.Popen(
-            ["sbcl", "--script", "telegram_bot.lisp"], 
+            ["sbcl", "--script", "app.lisp"], 
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE
         )
@@ -147,7 +105,6 @@ def start_script():
         return None
 
 
-
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
     await message.reply_text("Hello! I'm the Lisp bot. /lisp_status - To check lisp script status.")
@@ -155,18 +112,15 @@ async def start_command(client: Client, message: Message):
 @app.on_message(filters.command("io_status"))
 async def io_status(client: Client, message: Message):
     if io_process and io_process.poll() is None:
-        await message.reply_text("Io script is running.")
+        await message.reply_text("Lisp script is running.")
     else:
-        await message.reply_text("Io script is not running. Restarting...")
+        await message.reply_text("Lisp script is not running. Restarting...")
         global io_process
-        io_process = start_io_script()
+        io_process = start_script()
+        await message.reply_text(f"<pre>{io_process}</pre>")
 
 
-
-
-if __name__ == "__main__":
-    process = start_io_script()
-    if process:
-        print("Script is running...")
-        # You can wait for the process or do other things
-        # process.wait()  # Uncomment if you want to wait for completion
+app.run()
+io_process = start_script()
+if io_process:
+    print("Lisp script is running...")
