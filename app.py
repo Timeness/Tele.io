@@ -1,4 +1,5 @@
-from pyrogram import Client, filters
+from pyrogram import Client
+from pyrogram.filters import command
 from pyrogram.types import Message
 import os
 import subprocess
@@ -79,11 +80,11 @@ def start_script():
         return None
 
 
-@app.on_message(filters.command("start"))
+@app.on_message(command("start"))
 async def start_command(client: Client, message: Message):
     await message.reply_text("Hello! I'm the Lisp bot. /lisp_status - To check lisp script status.")
 
-@app.on_message(filters.command("io_status"))
+@app.on_message(command("io_status"))
 async def io_status(client: Client, message: Message):
     if io_process and io_process.poll() is None:
         await message.reply_text("Lisp script is running.")
