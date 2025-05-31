@@ -12,7 +12,7 @@ app = Client(
 )
 
 # Io script ka path
-IO_SCRIPT_PATH = "telegram_bot.io"
+LISP_SCRIPT_PATH = "app.lisp"
 
 
 def start_io_script():
@@ -82,12 +82,9 @@ import sys
 import platform
 
 def install_sbcl():
-    """Install SBCL based on the operating system"""
     system = platform.system().lower()
-    
     try:
         if system == "linux":
-            # Try different package managers
             if os.system("which apt-get") == 0:
                 print("Installing SBCL using apt-get...")
                 result = os.system("sudo apt-get update && sudo apt-get install -y sbcl")
@@ -103,32 +100,19 @@ def install_sbcl():
             else:
                 print("No supported package manager found. Please install SBCL manually.")
                 return False
-                
-        elif system == "darwin":  # macOS
-            if os.system("which brew") == 0:
-                print("Installing SBCL using Homebrew...")
-                result = os.system("brew install sbcl")
-            else:
-                print("Homebrew not found. Please install Homebrew first or install SBCL manually.")
-                return False
-                
         elif system == "windows":
             print("Windows detected. Please download and install SBCL from: http://www.sbcl.org/platform-table.html")
             print("Or use chocolatey: choco install sbcl")
             return False
-            
         else:
             print(f"Unsupported operating system: {system}")
             return False
-            
         return result == 0
-        
     except Exception as e:
         print(f"Error installing SBCL: {e}")
         return False
 
 def check_sbcl_installed():
-    """Check if SBCL is installed and accessible"""
     try:
         result = subprocess.run(["sbcl", "--version"], 
                               capture_output=True, 
@@ -138,12 +122,10 @@ def check_sbcl_installed():
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return False
 
-def start_io_script():
+def start_script():
     try:
-        # Check if SBCL is installed
         if not check_sbcl_installed():
             print("SBCL not found. Attempting to install...")
-            
             if install_sbcl():
                 print("SBCL installation completed. Checking again...")
                 if not check_sbcl_installed():
@@ -152,7 +134,6 @@ def start_io_script():
             else:
                 print("Failed to install SBCL automatically.")
                 return None
-        
         print("SBCL found. Starting Lisp script...")
         process = subprocess.Popen(
             ["sbcl", "--script", "telegram_bot.lisp"], 
@@ -161,12 +142,28 @@ def start_io_script():
         )
         print(f"Lisp script started with PID: {process.pid}")
         return process
-        
     except Exception as e:
         print(f"Error starting Lisp script: {e}")
         return None
 
-# Example usage
+
+
+@app.on_message(filters.command("start"))
+async def start_command(client: Client, message: Message):
+    await message.reply_text("Hello! I'm the Lisp bot. /lisp_status - To check lisp script status.")
+
+@app.on_message(filters.command("io_status"))
+async def io_status(client: Client, message: Message):
+    if io_process and io_process.poll() is None:
+        await message.reply_text("Io script is running.")
+    else:
+        await message.reply_text("Io script is not running. Restarting...")
+        global io_process
+        io_process = start_io_script()
+
+
+
+
 if __name__ == "__main__":
     process = start_io_script()
     if process:
