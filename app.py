@@ -1,43 +1,16 @@
-import subprocess
-import os
 from pyrogram import Client, filters
 from pyrogram.types import Message
-
-# Pyrogram bot configuration
-app = Client(
-    "my_bot",
-    api_id="YOUR_API_ID",  # Tumhara Telegram API ID
-    api_hash="YOUR_API_HASH",  # Tumhara Telegram API Hash
-    bot_token="YOUR_BOT_TOKEN"  # Tumhara BotFather se mila token
-)
-
- - Show this help\n/io_status - Check Io script status")
-
-@app.on_message(filters.command("io_status"))
-async def io_status(client: Client, message: Message):
-    if io_process and io_process.poll() is None:
-        await message.reply_text("Io script is running.")
-    else:
-        await message.reply_text("Io script is not running. Restarting...")
-        global io_process
-        io_process = start_io_script()
-
-# Main function to run the bot
-if __name__ == "__main__":
-    # Start the Io script when the Python script starts
-    io_process = start_io_script()
-
-    # Start the Pyrogram bot
-    print("Starting Pyrogram bot...")
-    app.run()
-
-
-
-
 import os
 import subprocess
 import sys
 import platform
+
+app = Client(
+    name=env.NAME,
+    api_id=env.API_ID,
+    api_hash=env.API_HASH,
+    bot_token=env.BOT_TOKEN
+)
 
 def install_sbcl():
     system = platform.system().lower()
