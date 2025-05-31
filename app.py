@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import platform
+from env import env
 
 app = Client(
     name=env.NAME,
